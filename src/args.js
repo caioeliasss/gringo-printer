@@ -40,7 +40,11 @@ COMANDOS/FLAGS:
   --help               Mostra esta ajuda
 
 AUTO-INÍCIO COM O WINDOWS:
-  scripts\\install-task.bat   (cria tarefa oculta; desinstalar com uninstall-task.bat)`;
+  scripts\\install-task.bat   (cria tarefa oculta; desinstalar com uninstall-task.bat)
+
+BANDEJA (WINDOWS):
+  Em execução, o app fica na área de notificação (perto do relógio):
+  botão direito → Abrir painel | Ver terminal | Sair`;
 }
 
 module.exports = { parseArgs, formatHelp };

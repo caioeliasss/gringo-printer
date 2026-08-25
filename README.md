@@ -58,11 +58,25 @@ executável em `vendor\SumatraPDF.exe`.
 | `node index.js --printer "Nome"` | usa impressora específica (padrão: do sistema) |
 | `node index.js --interval 5000` | intervalo de polling (mín. 3000ms) |
 
+## Bandeja do Windows (área de notificação)
+
+Em execução, o app fica oculto perto do relógio (seta para cima, "janelas
+ocultas"). Clique com o **botão direito** no ícone:
+
+- **Abrir painel** — abre o painel local no navegador (2 cliques também)
+- **Ver terminal** — janela com o log da sessão em tempo real
+- **Sair** — encerra o serviço
+
+O exe se auto-oculta: duplo clique nele (já configurado) não deixa console
+aberto — o app segue em segundo plano com o ícone na bandeja. O log completo
+da sessão fica em `gringo-printer.log` junto dos demais arquivos locais.
+
 ## Arquivos locais
 
 - `config.json` — pareamento (token, API, intervalo, impressora)
 - `state.json` — ids impressos + confirmações pendentes (últimos 500)
-- No exe: ambos ficam em `%LOCALAPPDATA%\gringo-printer`
+- `gringo-printer.log` — log da sessão (rotaciona em ~512KB)
+- No exe: ficam em `%LOCALAPPDATA%\gringo-printer`
 
 Ambos podem ser apagados para resetar o serviço.
 
@@ -75,9 +89,9 @@ Ambos podem ser apagados para resetar o serviço.
   padrão do Windows (Painel de Controle → Dispositivos e Impressoras).
 - **429 (limite de requisições)** — o serviço faz backoff automático; se
   persistir, aumente `--interval`.
-- **Logs** — tudo aparece no console; com a tarefa agendada, veja o processo
-  `node.exe` no Gerenciador de Tarefas. Para depurar, rode `node index.js`
-  numa janela aberta.
+- **Logs** — tudo aparece no console e em `gringo-printer.log` (ver também
+  "Ver terminal" na bandeja). Com a tarefa agendada, o processo `node.exe`
+  aparece no Gerenciador de Tarefas.
 
 ## Desenvolvimento
 

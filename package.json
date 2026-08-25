@@ -7,7 +7,7 @@
   "bin": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node --test test/state.test.js test/receipt.test.js test/poll.test.js test/sumatra.test.js test/dashboard.test.js",
+    "test": "node --test test/state.test.js test/receipt.test.js test/poll.test.js test/sumatra.test.js test/dashboard.test.js test/logger.test.js test/tray.test.js",
     "build:exe": "node scripts/build-exe.js"
   },
   "engines": {

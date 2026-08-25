@@ -5,3 +5,7 @@ dist/
 .pkg-base/
 *.pdf
 *.log
+*.log.old
+tray.ps1
+tray.ico
+open-terminal.ps1

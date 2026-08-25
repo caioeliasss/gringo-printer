@@ -15,6 +15,8 @@ const { runInteractiveSetup, isInteractive } = require("./src/setup");
 const { isPackaged, getDataDir } = require("./src/paths");
 const { createRuntime } = require("./src/runtime");
 const { startDashboard } = require("./src/dashboard");
+const { setupFileLogging } = require("./src/logger");
+const { startTray } = require("./src/tray");
 
 /** Abre o navegador padrão no Windows (usado para abrir o painel junto com o exe). */
 function openBrowser(url) {
@@ -91,6 +93,29 @@ async function main() {
     return;
   }
 
+  // Modo lojista: duplo clique no exe (sem argumentos, já configurado) →
+  // esconde o console e segue em segundo plano com ícone na bandeja.
+  // GRINGO_HIDDEN (filho respawnado) e GRINGO_NO_HIDE desativam o re-spawn.
+  if (
+    process.platform === "win32" &&
+    isPackaged() &&
+    !process.env.GRINGO_HIDDEN &&
+    !process.env.GRINGO_NO_HIDE &&
+    process.argv.slice(2).length === 0
+  ) {
+    const hidden = spawn(process.execPath, [], {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+      env: { ...process.env, GRINGO_HIDDEN: "1" },
+    });
+    hidden.unref();
+    return;
+  }
+
+  // Log da sessão em arquivo — é o que a opção "Ver terminal" da bandeja exibe.
+  const logger = setupFileLogging({ dir: getDataDir() });
+
   console.log("Gringo Printer iniciado");
   console.log(`  API: ${config.apiUrl}`);
   console.log(`  Token: ${config.token.slice(0, 6)}${"*".repeat(Math.max(0, config.token.length - 6))}`);
@@ -141,6 +166,15 @@ async function main() {
   };
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
+
+  // Ícone na bandeja (perto do relógio): botão direito → Abrir painel /
+  // Ver terminal / Sair. Sem painel (--no-dashboard/portas ocupadas), o menu
+  // fica só com terminal e sair. Encerra sozinho quando o processo morre.
+  startTray({
+    url: dashboard ? dashboard.url : "",
+    logFile: logger.file,
+    onQuit: shutdown,
+  });
 }
 
 main().catch((err) => {

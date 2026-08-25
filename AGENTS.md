@@ -36,6 +36,12 @@ Serviço Windows de impressão silenciosa de cupons 80mm (Node.js 18+, CommonJS)
 - Segunda instância: se a porta 8791 já tem OUTRA instância nossa, o processo só abre o painel existente e sai (`alreadyRunning`) — evita cupom impresso em duplicidade.
 - `src/runtime.js`: telemetria da sessão (status, contadores, histórico ≤20) compartilhada entre loop e painel; não persiste.
 
+## Bandeja, terminal e janela oculta
+
+- Duplo clique no exe (win32 + empacotado + zero argumentos + já configurado) → `index.js` re-spawna a si mesmo com `windowsHide`/`GRINGO_HIDDEN=1` e sai: o app roda sem console visível, com ícone na bandeja. `GRINGO_NO_HIDE=1` desativa. Flags (`--setup`, `--test`…) sempre rodam no console visível — não re-spawne nesses casos (setup precisa de TTY).
+- `src/tray.js`: bandeja via PowerShell `NotifyIcon` em processo filho (sem deps npm). Menu botão direito: Abrir painel / Ver terminal / Sair. "Sair" escreve linha `quit` no stdout do filho → `shutdown` no Node. O script observa o PID do Node via timer e se auto-encerra (dispose do ícone) quando o processo morre — não matar o filho no shutdown (kill abrupto deixa ícone fantasma). `GRINGO_NO_TRAY=1` desativa. `tray.ps1`/`open-terminal.ps1`/`tray.ico` são materializados no data dir (com BOM — PS 5.1 só lê UTF-8 com BOM; assets do pkg não são acessíveis a outros processos).
+- `src/logger.js`: tee de `console.log/warn/error` para `gringo-printer.log` no data dir (rotação ~512KB → `.old`). "Ver terminal" abre PowerShell com `Get-Content -Wait` nesse arquivo. Sem isso, a sessão oculta não teria log algum.
+
 ## API consumida (backend gringo_delivery-store)
 
 - `GET /api/orders/printer/ready-to-print/:token`
