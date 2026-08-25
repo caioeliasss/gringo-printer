@@ -16,13 +16,19 @@ flags do Chrome, sem selecionar impressora.
 
 O token de pareamento é gerado no painel da loja, página **Impressora**.
 
-## Requisitos
+## Instalação (lojista) — exe único
 
-- Windows com Node.js 18+ (`node --version`)
-- Impressora térmica instalada e definida como **padrão do sistema**
-- `vendor\SumatraPDF.exe` (veja instalação abaixo)
+1. Baixe o `GringoPrinter.exe` e dê dois cliques (na 1ª vez o Windows pode
+   avisar sobre app desconhecido: "Mais informações → Executar assim mesmo")
+2. Cole o **token** gerado no painel (/impressora) — só isso; API fica em
+   "avançado" e o padrão já é a de produção
+3. Na primeira impressão o SumatraPDF (~7MB) é baixado automaticamente
 
-## Instalação (lojista)
+Dados locais do exe em `%LOCALAPPDATA%\gringo-printer` (`config.json`,
+`state.json`, `SumatraPDF.exe`). Apagar a pasta reseta tudo. Para trocar
+token/API depois: `GringoPrinter.exe --setup`.
+
+## Instalação alternativa (via Node)
 
 ```bat
 1. npm install
@@ -31,6 +37,10 @@ O token de pareamento é gerado no painel da loja, página **Impressora**.
 4. node index.js --token IMPxxxx --api https://api.gringodelivery.com.br/api
 5. scripts\install-task.bat       :: (opcional) inicia com o Windows, oculto
 ```
+
+Requisitos: Windows com Node.js 18+ e impressora definida como **padrão do
+sistema**. O `--api` é opcional (default de produção); `--test` exige
+`vendor\SumatraPDF.exe` ou SumatraPDF instalado.
 
 Se `get-sumatra.bat` falhar, baixe o SumatraPDF portável em
 <https://www.sumatrapdfreader.org/download-free-pdf-viewer> e coloque o
@@ -44,6 +54,7 @@ executável em `vendor\SumatraPDF.exe`.
 | `node index.js` | inicia o serviço (usa `config.json`) |
 | `node index.js --test` | imprime cupom de teste e sai |
 | `node index.js --token X` | troca o token (gerado no painel /impressora) |
+| `node index.js --setup` | reconfigura via prompt: token (Enter mantém) + API em avançado |
 | `node index.js --printer "Nome"` | usa impressora específica (padrão: do sistema) |
 | `node index.js --interval 5000` | intervalo de polling (mín. 3000ms) |
 
@@ -51,13 +62,15 @@ executável em `vendor\SumatraPDF.exe`.
 
 - `config.json` — pareamento (token, API, intervalo, impressora)
 - `state.json` — ids impressos + confirmações pendentes (últimos 500)
+- No exe: ambos ficam em `%LOCALAPPDATA%\gringo-printer`
 
 Ambos podem ser apagados para resetar o serviço.
 
 ## Solução de problemas
 
 - **"TOKEN INVÁLIDO"** — gere um novo token no painel (/impressora) e rode
-  `node index.js --token NOVOTOKEN`. O token antigo é invalidado na hora.
+  `node index.js --token NOVOTOKEN` (ou `--setup`). O token antigo é
+  invalidado na hora. No exe: `GringoPrinter.exe --setup`.
 - **Não imprime** — rode `node index.js --test`; confira se a impressora é a
   padrão do Windows (Painel de Controle → Dispositivos e Impressoras).
 - **429 (limite de requisições)** — o serviço faz backoff automático; se
@@ -70,9 +83,21 @@ Ambos podem ser apagados para resetar o serviço.
 
 ```bash
 npm install
-npm test        # node:test (state + layout do cupom)
+npm test        # node:test (state + layout do cupom + poll + sumatra)
 npm start
 ```
+
+### Gerar o exe (distribuição)
+
+```bash
+npm run build:exe   # -> dist/GringoPrinter.exe (Node 22 win-x64 embutido, ~60MB)
+```
+
+- Primeiro build baixa o runtime base do pkg (cache em `~/.pkg-cache`)
+- `--fallback-to-source` é necessário: `brotli` (dep do fontkit) falha na
+  geração de bytecode e precisa vir como fonte
+- `node22` porque o pkg não publica mais prebuilt de node18 (EOL); o app
+  exige `>=18`, então o runtime embutido continua compatível
 
 Endpoints consumidos (backend gringo_delivery-store):
 

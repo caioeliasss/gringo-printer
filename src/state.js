@@ -5,8 +5,9 @@
  */
 const fs = require("fs");
 const path = require("path");
+const { getDataDir } = require("./paths");
 
-const DEFAULT_STATE_PATH = path.join(__dirname, "..", "state.json");
+const DEFAULT_STATE_PATH = path.join(getDataDir(), "state.json");
 const MAX_PRINTED_IDS = 500;
 
 function createState(filePath = DEFAULT_STATE_PATH) {

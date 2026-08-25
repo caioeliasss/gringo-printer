@@ -1,5 +1,7 @@
 node_modules/
 config.json
 state.json
+dist/
+.pkg-base/
 *.pdf
 *.log

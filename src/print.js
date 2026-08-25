@@ -1,23 +1,32 @@
 /**
- * Impressão silenciosa via SumatraPDF (portável, em vendor/).
+ * Impressão silenciosa via SumatraPDF.
  * Sempre imprime na impressora PADRÃO do sistema, salvo override --printer.
+ * Se o SumatraPDF não for encontrado, baixa automaticamente (src/sumatra.js).
  */
 const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { getDataDir } = require("./paths");
+const { ensureSumatra } = require("./sumatra");
 
 const VENDOR_DIR = path.join(__dirname, "..", "vendor");
+
+function findInDir(dir) {
+  try {
+    const candidate = fs
+      .readdirSync(dir)
+      .find((f) => /^sumatrapdf.*\.exe$/i.test(f));
+    if (candidate) return path.join(dir, candidate);
+  } catch {}
+  return null;
+}
 
 function findSumatraPdf() {
   const fromEnv = process.env.GRINGO_SUMATRA_PATH;
   if (fromEnv && fs.existsSync(fromEnv)) return fromEnv;
 
-  try {
-    const candidate = fs
-      .readdirSync(VENDOR_DIR)
-      .find((f) => /^sumatrapdf.*\.exe$/i.test(f));
-    if (candidate) return path.join(VENDOR_DIR, candidate);
-  } catch {}
+  const local = findInDir(getDataDir()) || findInDir(VENDOR_DIR);
+  if (local) return local;
 
   const common = [
     path.join(process.env.ProgramFiles || "C:\\Program Files", "SumatraPDF", "SumatraPDF.exe"),
@@ -30,7 +39,7 @@ function findSumatraPdf() {
     if (fs.existsSync(c)) return c;
   }
 
-  return "SumatraPDF"; // último recurso: procura no PATH
+  return null;
 }
 
 /**
@@ -38,8 +47,13 @@ function findSumatraPdf() {
  * @param {string} pdfPath caminho do PDF
  * @param {string|null} printerName null => impressora padrão do sistema
  */
-function printPdf(pdfPath, printerName) {
-  const exe = findSumatraPdf();
+async function printPdf(pdfPath, printerName) {
+  let exe = findSumatraPdf();
+  if (!exe) {
+    console.log("[gringo-printer] SumatraPDF não encontrado — baixando automaticamente...");
+    exe = await ensureSumatra(getDataDir());
+    console.log(`[gringo-printer] SumatraPDF instalado em ${exe}`);
+  }
   const args = printerName ? ["-print-to", printerName] : ["-print-to-default"];
   args.push("-silent", "-exit-when-done", pdfPath);
 

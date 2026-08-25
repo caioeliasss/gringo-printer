@@ -8,10 +8,12 @@ function parseArgs(argv) {
     const a = argv[i];
     if (a === "--help" || a === "-h") args.help = true;
     else if (a === "--test") args.test = true;
+    else if (a === "--setup") args.setup = true;
     else if (a === "--token") args.token = argv[++i];
     else if (a === "--api" || a === "--api-url") args.apiUrl = argv[++i];
     else if (a === "--interval") args.pollIntervalMs = Number(argv[++i]);
     else if (a === "--printer") args.printer = argv[++i];
+    else if (a === "--no-dashboard") args.noDashboard = true;
     else args._.push(a);
   }
   return args;
@@ -33,6 +35,8 @@ COMANDOS/FLAGS:
   --printer NOME       (Opcional) imprime na impressora informada; sem a flag,
                        usa a impressora PADRÃO do sistema
   --test               Imprime um cupom de teste e sai
+  --setup              Reconfigura token (e API, em avançado) via prompt
+  --no-dashboard       Desativa o painel local (padrão: http://127.0.0.1:8791)
   --help               Mostra esta ajuda
 
 AUTO-INÍCIO COM O WINDOWS:

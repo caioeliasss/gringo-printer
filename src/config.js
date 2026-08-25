@@ -3,10 +3,11 @@
  */
 const fs = require("fs");
 const path = require("path");
+const { getDataDir } = require("./paths");
 
-const CONFIG_PATH = path.join(__dirname, "..", "config.json");
+const CONFIG_PATH = path.join(getDataDir(), "config.json");
 const DEFAULTS = {
-  apiUrl: "",
+  apiUrl: "https://api.gringodelivery.com.br/api",
   token: "",
   pollIntervalMs: 10000,
   printer: "",
