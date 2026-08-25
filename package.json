@@ -1,0 +1,17 @@
+{
+  "name": "gringo-printer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serviço de impressão silenciosa de cupons Gringo Delivery (impressora padrão do sistema)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test test/state.test.js test/receipt.test.js test/poll.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pdfkit": "^0.15.0"
+  }
+}
