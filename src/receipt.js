@@ -9,11 +9,11 @@ const PAGE_WIDTH = (80 / 25.4) * 72; // ~226.77pt
 const MARGIN = (2 / 25.4) * 72; // ~5.67pt
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 
-const FONT = "Courier";
+const FONT = "Courier-Bold";
 const FONT_BOLD = "Courier-Bold";
-const SIZE_HEADER = 13;
-const SIZE_BODY = 9.5;
-const SIZE_SMALL = 8;
+const SIZE_HEADER = 14;
+const SIZE_BODY = 11;
+const SIZE_SMALL = 9.5;
 
 function lineHeight(size) {
   return Math.ceil(size * 1.35);
